@@ -51,7 +51,7 @@ const Services = () => {
           <p className="text-muted-foreground text-sm mb-3 line-clamp-2">{service.description}</p>
         </div>
         <div className="text-right ml-4">
-          <div className="text-2xl font-bold font-outfit text-primary">${service.price}</div>
+          <div className="text-2xl font-bold font-outfit text-primary">₹{service.price}</div>
         </div>
       </div>
       <div className="flex items-center gap-3 flex-wrap">

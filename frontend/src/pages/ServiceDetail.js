@@ -103,7 +103,7 @@ const ServiceDetail = () => {
               )}
             </div>
             <div className="text-right ml-4">
-              <div className="text-4xl font-bold font-outfit text-primary" data-testid="service-price">${service.price}</div>
+              <div className="text-4xl font-bold font-outfit text-primary" data-testid="service-price">₹{service.price}</div>
               <p className="text-xs text-muted-foreground mt-1">15% commission applies</p>
             </div>
           </div>
@@ -126,7 +126,7 @@ const ServiceDetail = () => {
               <DollarSign className="w-8 h-8 text-primary" />
               <div>
                 <p className="text-sm text-muted-foreground">You'll pay</p>
-                <p className="font-semibold">${service.price}</p>
+                <p className="font-semibold">₹{service.price}</p>
               </div>
             </div>
           </div>

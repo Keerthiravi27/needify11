@@ -164,7 +164,7 @@ const Home = () => {
                       </div>
                     </div>
                     <div className="text-right ml-4">
-                      <div className="text-2xl font-bold font-outfit text-primary">${gig.price}</div>
+                      <div className="text-2xl font-bold font-outfit text-primary">₹{gig.price}</div>
                     </div>
                   </div>
                 </Link>

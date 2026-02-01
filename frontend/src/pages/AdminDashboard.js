@@ -163,7 +163,7 @@ const AdminDashboard = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
                           <span className="bg-green-100 text-primary px-2 py-1 rounded-full text-xs">{gig.category}</span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold">${gig.price}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold">₹{gig.price}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm capitalize">
                           <span className={`px-2 py-1 rounded-full text-xs ${
                             gig.status === 'open' ? 'bg-blue-100 text-blue-700' :
@@ -235,8 +235,8 @@ const AdminDashboard = () => {
                       <tr key={order.id} data-testid={`order-row-${order.id}`} className="hover:bg-green-50/50">
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-mono">{order.id.slice(0, 8)}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm capitalize">{order.order_type}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold">${order.total_amount}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600">${order.commission.toFixed(2)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold">₹{order.total_amount}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600">₹{order.commission.toFixed(2)}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm capitalize">
                           <span className={`px-2 py-1 rounded-full text-xs ${
                             order.status === 'active' ? 'bg-blue-100 text-blue-700' :
