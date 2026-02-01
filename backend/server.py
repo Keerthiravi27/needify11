@@ -66,7 +66,8 @@ class Gig(BaseModel):
     title: str
     description: str
     category: str
-    price: float
+    price: Optional[float] = None  # Price set by acceptor
+    deadline: Optional[str] = None  # Completion deadline
     status: str = "open"  # open, accepted, completed, cancelled
     poster_id: str
     poster_name: str = ""
