@@ -149,37 +149,50 @@ const Orders = () => {
                   <p className="text-xs text-muted-foreground">
                     Created: {new Date(order.created_at).toLocaleString()}
                   </p>
-                  {order.status === 'active' && (
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          data-testid={`cancel-order-btn-${order.id}`}
-                          className="rounded-full"
-                        >
-                          <XCircle className="w-4 h-4 mr-2" /> Cancel Order
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Cancel Order?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to cancel this order? If cancelled after 2 minutes, a 50% cancellation fee will apply.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>No, keep it</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleCancelOrder(order.id)}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  <div className="flex gap-2">
+                    {order.payment_status === 'pending' && order.buyer_id === user?.id && order.status === 'pending_payment' && (
+                      <Button
+                        onClick={() => handlePayment(order.id)}
+                        data-testid={`pay-order-btn-${order.id}`}
+                        className="btn-primary rounded-full text-sm"
+                      >
+                        Pay ₹{order.total_amount}
+                      </Button>
+                    )}
+                    {(order.status === 'pending_payment' || order.status === 'active') && (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            data-testid={`cancel-order-btn-${order.id}`}
+                            className="rounded-full"
                           >
-                            Yes, cancel
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  )}
+                            <XCircle className="w-4 h-4 mr-2" /> Cancel
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Cancel Order?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              {order.buyer_id === user?.id
+                                ? "Are you sure you want to cancel this order? If cancelled after 2 minutes, a 50% cancellation fee will apply to you as the poster."
+                                : "Are you sure you want to cancel this order? No cancellation fee will be charged to you."}
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>No, keep it</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleCancelOrder(order.id)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Yes, cancel
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
