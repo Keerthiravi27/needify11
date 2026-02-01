@@ -457,6 +457,7 @@ async def get_order(order_id: str, current_user: User = Depends(get_current_user
 
 @api_router.post("/orders/{order_id}/cancel")
 async def cancel_order(order_id: str, current_user: User = Depends(get_current_user)):
+async def cancel_order(order_id: str, current_user: User = Depends(get_current_user)):
     order = await db.orders.find_one({"id": order_id}, {"_id": 0})
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
