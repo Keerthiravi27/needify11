@@ -79,10 +79,11 @@ class GigCreate(BaseModel):
     title: str
     description: str
     category: str
-    price: float
+    deadline: Optional[str] = None
 
 class GigAccept(BaseModel):
     gig_id: str
+    price: float  # Price proposed by acceptor
 
 class GigUpdateStatus(BaseModel):
     status: str
