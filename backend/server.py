@@ -117,7 +117,8 @@ class Order(BaseModel):
     provider_name: str = ""
     total_amount: float
     commission: float  # 15%
-    status: str = "active"  # active, completed, cancelled
+    status: str = "pending_payment"  # pending_payment, active, completed, cancelled
+    payment_status: str = "pending"  # pending, completed
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     cancelled_at: Optional[datetime] = None
 
