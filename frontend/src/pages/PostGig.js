@@ -27,7 +27,7 @@ const PostGig = () => {
     title: '',
     description: '',
     category: '',
-    price: '',
+    deadline: '',
   });
 
   const handleChange = (e) => {
