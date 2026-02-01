@@ -395,7 +395,7 @@ async def book_service(service_id: str, current_user: User = Depends(get_current
     if service['creator_id'] == current_user.id:
         raise HTTPException(status_code=400, detail="Cannot book your own service")
     
-    # Create order
+    # Create order with pending payment
     commission = service['price'] * 0.15
     order = Order(
         order_type="service",
@@ -405,7 +405,9 @@ async def book_service(service_id: str, current_user: User = Depends(get_current
         provider_id=service['creator_id'],
         provider_name=service['creator_name'],
         total_amount=service['price'],
-        commission=commission
+        commission=commission,
+        status="pending_payment",
+        payment_status="pending"
     )
     order_doc = order.model_dump()
     order_doc['created_at'] = order_doc['created_at'].isoformat()
@@ -414,11 +416,11 @@ async def book_service(service_id: str, current_user: User = Depends(get_current
     # Notify provider
     await create_notification(
         service['creator_id'],
-        f"{current_user.name} booked your service: {service['title']}",
+        f"{current_user.name} booked your service: {service['title']} for ₹{service['price']}",
         "service_booked"
     )
     
-    return {"message": "Service booked", "order_id": order.id}
+    return {"message": "Service booked. Please complete payment.", "order_id": order.id}
 
 @api_router.get("/services/my/created", response_model=List[Service])
 async def get_my_services(current_user: User = Depends(get_current_user)):
