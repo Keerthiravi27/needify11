@@ -129,9 +129,19 @@ const Orders = () => {
                   <div className="text-right ml-4">
                     <div className="flex items-center gap-2 mb-2">
                       <DollarSign className="w-5 h-5 text-primary" />
-                      <span className="text-2xl font-bold font-outfit text-primary">${order.total_amount}</span>
+                      <span className="text-2xl font-bold font-outfit text-primary">₹{order.total_amount}</span>
                     </div>
-                    <p className="text-xs text-muted-foreground">Commission: ${order.commission.toFixed(2)}</p>
+                    <p className="text-xs text-muted-foreground">Commission: ₹{order.commission.toFixed(2)}</p>
+                    {order.payment_status === 'pending' && (
+                      <span className="inline-block mt-2 px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">
+                        Payment Pending
+                      </span>
+                    )}
+                    {order.payment_status === 'completed' && (
+                      <span className="inline-block mt-2 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                        Paid
+                      </span>
+                    )}
                   </div>
                 </div>
 
