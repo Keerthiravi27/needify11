@@ -123,26 +123,24 @@ const PostGig = () => {
             </div>
 
             <div>
-              <Label htmlFor="price" className="text-sm font-medium mb-2 block">
-                Price ($) *
+              <Label htmlFor="deadline" className="text-sm font-medium mb-2 block">
+                Completion Deadline *
               </Label>
               <Input
-                id="price"
-                name="price"
-                type="number"
-                step="0.01"
-                min="0"
-                data-testid="gig-price-input"
-                placeholder="e.g., 25.00"
-                value={formData.price}
+                id="deadline"
+                name="deadline"
+                type="datetime-local"
+                data-testid="gig-deadline-input"
+                value={formData.deadline}
                 onChange={handleChange}
                 className="h-12 rounded-xl"
               />
+              <p className="text-xs text-muted-foreground mt-1">When should this gig be completed?</p>
             </div>
 
             <div className="bg-green-50 border border-green-200 rounded-xl p-4">
               <p className="text-sm text-muted-foreground">
-                <strong>Note:</strong> A 15% platform commission will be applied to this gig.
+                <strong>Note:</strong> The person accepting your gig will set the price. You'll be notified once someone accepts with their proposed amount.
               </p>
             </div>
 
