@@ -272,7 +272,7 @@ async def get_gig(gig_id: str):
     return Gig(**gig)
 
 @api_router.post("/gigs/{gig_id}/accept")
-async def accept_gig(gig_id: str, current_user: User = Depends(get_current_user)):
+async def accept_gig(gig_id: str, accept_data: GigAccept, current_user: User = Depends(get_current_user)):
     gig = await db.gigs.find_one({"id": gig_id}, {"_id": 0})
     if not gig:
         raise HTTPException(status_code=404, detail="Gig not found")
@@ -281,13 +281,19 @@ async def accept_gig(gig_id: str, current_user: User = Depends(get_current_user)
     if gig['poster_id'] == current_user.id:
         raise HTTPException(status_code=400, detail="Cannot accept your own gig")
     
+    # Update gig with acceptor details and price
     await db.gigs.update_one(
         {"id": gig_id},
-        {"$set": {"status": "accepted", "acceptor_id": current_user.id, "acceptor_name": current_user.name}}
+        {"$set": {
+            "status": "accepted",
+            "acceptor_id": current_user.id,
+            "acceptor_name": current_user.name,
+            "price": accept_data.price
+        }}
     )
     
-    # Create order
-    commission = gig['price'] * 0.15
+    # Create order with the price set by acceptor
+    commission = accept_data.price * 0.15
     order = Order(
         order_type="gig",
         gig_id=gig_id,
@@ -295,8 +301,9 @@ async def accept_gig(gig_id: str, current_user: User = Depends(get_current_user)
         buyer_name=gig['poster_name'],
         provider_id=current_user.id,
         provider_name=current_user.name,
-        total_amount=gig['price'],
-        commission=commission
+        total_amount=accept_data.price,
+        commission=commission,
+        status="pending_payment"  # Payment pending
     )
     order_doc = order.model_dump()
     order_doc['created_at'] = order_doc['created_at'].isoformat()
@@ -305,11 +312,11 @@ async def accept_gig(gig_id: str, current_user: User = Depends(get_current_user)
     # Notify poster
     await create_notification(
         gig['poster_id'],
-        f"{current_user.name} accepted your gig: {gig['title']}",
+        f"{current_user.name} accepted your gig: {gig['title']} for ₹{accept_data.price}",
         "gig_accepted"
     )
     
-    return {"message": "Gig accepted", "order_id": order.id}
+    return {"message": "Gig accepted", "order_id": order.id, "price": accept_data.price}
 
 @api_router.put("/gigs/{gig_id}/status", response_model=Gig)
 async def update_gig_status(gig_id: str, status_data: GigUpdateStatus, current_user: User = Depends(get_current_user)):
