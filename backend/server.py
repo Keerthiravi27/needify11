@@ -497,6 +497,37 @@ async def cancel_order(order_id: str, current_user: User = Depends(get_current_u
         "charged_to": "poster" if cancelled_by_poster else "none"
     }
 
+@api_router.post("/orders/{order_id}/payment")
+async def process_payment(order_id: str, current_user: User = Depends(get_current_user)):
+    order = await db.orders.find_one({"id": order_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order['buyer_id'] != current_user.id:
+        raise HTTPException(status_code=403, detail="Only buyer can make payment")
+    if order['payment_status'] == 'completed':
+        raise HTTPException(status_code=400, detail="Payment already completed")
+    
+    # MOCK PAYMENT - In production, integrate with Razorpay
+    # For now, we'll just mark it as paid
+    await db.orders.update_one(
+        {"id": order_id},
+        {"$set": {"payment_status": "completed", "status": "active"}}
+    )
+    
+    # Notify provider
+    await create_notification(
+        order['provider_id'],
+        f"Payment of ₹{order['total_amount']} received for order #{order_id[:8]}",
+        "payment_received"
+    )
+    
+    return {
+        "message": "Payment successful",
+        "amount": order['total_amount'],
+        "order_id": order_id,
+        "payment_method": "mock"  # In production: Razorpay
+    }
+
 # ========== RATING ROUTES ==========
 @api_router.post("/ratings", response_model=Rating)
 async def create_rating(rating_data: RatingCreate, current_user: User = Depends(get_current_user)):
