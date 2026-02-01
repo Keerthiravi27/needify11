@@ -16,7 +16,7 @@ const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
 const categories = [
   'Tutoring', 'Design', 'Writing', 'Programming', 'Photography',
-  'Event Help', 'Delivery', 'Moving', 'Cleaning', 'Other'
+  'Event Help', 'Delivery', 'Moving', 'Cleaning', 'Printout', 'Other'
 ];
 
 const PostGig = () => {
