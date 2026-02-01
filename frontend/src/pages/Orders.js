@@ -41,14 +41,29 @@ const Orders = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const fee = response.data.cancellation_fee;
+      const chargedTo = response.data.charged_to;
       if (fee > 0) {
-        toast.info(`Order cancelled. Cancellation fee: $${fee.toFixed(2)}`);
+        toast.info(`Order cancelled. Cancellation fee: \u20b9${fee.toFixed(2)} (charged to ${chargedTo})`);
       } else {
         toast.success('Order cancelled successfully');
       }
       fetchOrders();
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to cancel order');
+    }
+  };
+
+  const handlePayment = async (orderId) => {
+    try {
+      await axios.post(
+        `${API_URL}/orders/${orderId}/payment`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success('Payment completed successfully!');
+      fetchOrders();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Payment failed');
     }
   };
 
