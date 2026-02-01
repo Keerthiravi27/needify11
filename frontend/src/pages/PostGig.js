@@ -36,7 +36,7 @@ const PostGig = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.title || !formData.description || !formData.category || !formData.price) {
+    if (!formData.title || !formData.description || !formData.category || !formData.deadline) {
       toast.error('Please fill in all fields');
       return;
     }
@@ -45,7 +45,7 @@ const PostGig = () => {
     try {
       await axios.post(
         `${API_URL}/gigs`,
-        { ...formData, price: parseFloat(formData.price) },
+        formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       toast.success('Gig posted successfully!');
