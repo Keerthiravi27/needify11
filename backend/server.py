@@ -462,15 +462,16 @@ async def cancel_order(order_id: str, current_user: User = Depends(get_current_u
         raise HTTPException(status_code=404, detail="Order not found")
     if order['buyer_id'] != current_user.id and order['provider_id'] != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
-    if order['status'] != 'active':
+    if order['status'] not in ['pending_payment', 'active']:
         raise HTTPException(status_code=400, detail="Order already completed or cancelled")
     
     created_at = datetime.fromisoformat(order['created_at']) if isinstance(order['created_at'], str) else order['created_at']
     time_diff = datetime.now(timezone.utc) - created_at
     
-    # 50% fee after 2 minutes
+    # 50% fee after 2 minutes - ONLY for the poster (buyer)
     cancellation_fee = 0
-    if time_diff.total_seconds() > 120:
+    cancelled_by_poster = current_user.id == order['buyer_id']
+    if cancelled_by_poster and time_diff.total_seconds() > 120:
         cancellation_fee = order['total_amount'] * 0.5
     
     await db.orders.update_one(
@@ -484,9 +485,16 @@ async def cancel_order(order_id: str, current_user: User = Depends(get_current_u
     
     # Notify other party
     other_user_id = order['provider_id'] if order['buyer_id'] == current_user.id else order['buyer_id']
-    await create_notification(other_user_id, f"Order #{order_id[:8]} has been cancelled", "cancelled")
+    message = f"Order #{order_id[:8]} has been cancelled"
+    if cancelled_by_poster and cancellation_fee > 0:
+        message += f" by the poster. Cancellation fee: ₹{cancellation_fee}"
+    await create_notification(other_user_id, message, "cancelled")
     
-    return {"message": "Order cancelled", "cancellation_fee": cancellation_fee}
+    return {
+        "message": "Order cancelled",
+        "cancellation_fee": cancellation_fee,
+        "charged_to": "poster" if cancelled_by_poster else "none"
+    }
 
 # ========== RATING ROUTES ==========
 @api_router.post("/ratings", response_model=Rating)
