@@ -5,8 +5,9 @@ import { useAuth } from '../context/AuthContext';
 import { Header } from '../components/Header';
 import { BottomNav } from '../components/BottomNav';
 import { Button } from '../components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { ArrowLeft, User, DollarSign, Clock, CheckCircle2 } from 'lucide-react';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { ArrowLeft, User, Clock, CheckCircle2, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
@@ -18,6 +19,8 @@ const GigDetail = () => {
   const [gig, setGig] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [proposedPrice, setProposedPrice] = useState('');
+  const [showPriceInput, setShowPriceInput] = useState(false);
 
   useEffect(() => {
     fetchGig();
@@ -38,12 +41,19 @@ const GigDetail = () => {
   };
 
   const handleAccept = async () => {
+    if (!proposedPrice || parseFloat(proposedPrice) <= 0) {
+      toast.error('Please enter a valid price');
+      return;
+    }
+
     setActionLoading(true);
     try {
-      await axios.post(`${API_URL}/gigs/${id}/accept`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      toast.success('Gig accepted! Order created.');
+      await axios.post(
+        `${API_URL}/gigs/${id}/accept`,
+        { gig_id: id, price: parseFloat(proposedPrice) },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success('Gig accepted! Waiting for payment from poster.');
       navigate('/orders');
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to accept gig');
@@ -118,10 +128,12 @@ const GigDetail = () => {
                 </span>
               </div>
             </div>
-            <div className="text-right ml-4">
-              <div className="text-4xl font-bold font-outfit text-primary" data-testid="gig-price">${gig.price}</div>
-              <p className="text-xs text-muted-foreground mt-1">15% commission applies</p>
-            </div>
+            {gig.price && (
+              <div className="text-right ml-4">
+                <div className="text-4xl font-bold font-outfit text-primary" data-testid="gig-price">₹{gig.price}</div>
+                <p className="text-xs text-muted-foreground mt-1">Agreed price</p>
+              </div>
+            )}
           </div>
 
           <div className="mb-6">
@@ -148,6 +160,16 @@ const GigDetail = () => {
               </div>
             )}
 
+            {gig.deadline && (
+              <div className="flex items-center gap-3 p-4 bg-green-50 rounded-xl">
+                <Calendar className="w-8 h-8 text-primary" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Deadline</p>
+                  <p className="font-semibold">{new Date(gig.deadline).toLocaleString()}</p>
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center gap-3 p-4 bg-green-50 rounded-xl">
               <Clock className="w-8 h-8 text-primary" />
               <div>
@@ -155,25 +177,59 @@ const GigDetail = () => {
                 <p className="font-semibold">{new Date(gig.created_at).toLocaleDateString()}</p>
               </div>
             </div>
-
-            <div className="flex items-center gap-3 p-4 bg-green-50 rounded-xl">
-              <DollarSign className="w-8 h-8 text-primary" />
-              <div>
-                <p className="text-sm text-muted-foreground">You'll receive</p>
-                <p className="font-semibold">${(gig.price * 0.85).toFixed(2)}</p>
-              </div>
-            </div>
           </div>
 
           {canAccept && (
-            <Button
-              onClick={handleAccept}
-              disabled={actionLoading}
-              data-testid="accept-gig-btn"
-              className="w-full h-12 rounded-full btn-primary text-lg font-semibold"
-            >
-              {actionLoading ? 'Accepting...' : 'Accept This Gig'}
-            </Button>
+            <div className="space-y-4">
+              {!showPriceInput ? (
+                <Button
+                  onClick={() => setShowPriceInput(true)}
+                  data-testid="show-accept-btn"
+                  className="w-full h-12 rounded-full btn-primary text-lg font-semibold"
+                >
+                  I'm Interested - Set My Price
+                </Button>
+              ) : (
+                <div className="space-y-4 p-6 bg-green-50 rounded-2xl border-2 border-green-200">
+                  <div>
+                    <Label htmlFor="price" className="text-sm font-medium mb-2 block">
+                      Your Proposed Price (₹) *
+                    </Label>
+                    <Input
+                      id="price"
+                      type="number"
+                      step="1"
+                      min="1"
+                      data-testid="proposed-price-input"
+                      placeholder="Enter amount in INR"
+                      value={proposedPrice}
+                      onChange={(e) => setProposedPrice(e.target.value)}
+                      className="h-12 rounded-xl text-lg"
+                    />
+                    <p className="text-xs text-muted-foreground mt-2">
+                      15% platform commission will be applied. You'll receive ₹{proposedPrice ? (parseFloat(proposedPrice) * 0.85).toFixed(2) : '0'}
+                    </p>
+                  </div>
+                  <div className="flex gap-3">
+                    <Button
+                      onClick={handleAccept}
+                      disabled={actionLoading}
+                      data-testid="accept-gig-btn"
+                      className="flex-1 h-12 rounded-full btn-primary text-lg font-semibold"
+                    >
+                      {actionLoading ? 'Accepting...' : 'Accept Gig'}
+                    </Button>
+                    <Button
+                      onClick={() => setShowPriceInput(false)}
+                      variant="outline"
+                      className="h-12 rounded-full"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
 
           {canUpdateStatus && (
@@ -190,7 +246,7 @@ const GigDetail = () => {
                     Mark as Completed
                   </Button>
                 )}
-                {(gig.status === 'open' || gig.status === 'accepted') && (
+                {(gig.status === 'open' || gig.status === 'accepted') && isOwner && (
                   <Button
                     onClick={() => handleStatusUpdate('cancelled')}
                     disabled={actionLoading}
