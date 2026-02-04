@@ -57,9 +57,15 @@ const Orders = () => {
   };
 
   const handlePayment = async (orderId) => {
+    const order = orders.find(o => o.id === orderId);
+    setSelectedOrder(order);
+    setShowPaymentModal(true);
+  };
+
+  const handlePaymentSuccess = async () => {
     try {
       await axios.post(
-        `${API_URL}/orders/${orderId}/payment`,
+        `${API_URL}/orders/${selectedOrder.id}/payment`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
