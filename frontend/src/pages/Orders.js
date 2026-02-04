@@ -137,7 +137,7 @@ const Orders = () => {
                   </div>
                   <div className="text-right ml-4">
                     <div className="flex items-center gap-2 mb-2">
-                      <DollarSign className="w-5 h-5 text-primary" />
+                      <Banknote className="w-5 h-5 text-primary" />
                       <span className="text-2xl font-bold font-outfit text-primary">₹{order.total_amount}</span>
                     </div>
                     <p className="text-xs text-muted-foreground">Commission: ₹{order.commission.toFixed(2)}</p>
