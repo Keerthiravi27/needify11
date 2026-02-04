@@ -210,6 +210,15 @@ const Orders = () => {
       </div>
 
       <BottomNav />
+      
+      {/* Razorpay Payment Modal */}
+      <RazorpayPaymentModal
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        amount={selectedOrder?.total_amount || 0}
+        onSuccess={handlePaymentSuccess}
+        orderDetails={selectedOrder}
+      />
     </div>
   );
 };
