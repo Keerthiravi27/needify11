@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { Header } from '../components/Header';
 import { BottomNav } from '../components/BottomNav';
 import { Button } from '../components/ui/button';
-import { Briefcase, ShoppingBag, ClipboardList, TrendingUp, Plus, Star } from 'lucide-react';
+import { Briefcase, ShoppingBag, ClipboardList, TrendingUp, Plus, Star, Banknote } from 'lucide-react';
 import { toast } from 'sonner';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
