@@ -667,6 +667,64 @@ async def admin_get_orders(current_user: User = Depends(get_current_user)):
             order['cancelled_at'] = datetime.fromisoformat(order['cancelled_at'])
     return orders
 
+# ========== CHAT ROUTES ==========
+@api_router.post("/chat/send", response_model=ChatMessage)
+async def send_message(msg_data: ChatMessageCreate, current_user: User = Depends(get_current_user)):
+    # Verify user is part of the order
+    order = await db.orders.find_one({"id": msg_data.order_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order['buyer_id'] != current_user.id and order['provider_id'] != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Only allow chat after payment is completed
+    if order.get('payment_status') != 'completed':
+        raise HTTPException(status_code=400, detail="Chat available only after payment completion")
+    
+    message = ChatMessage(
+        order_id=msg_data.order_id,
+        sender_id=current_user.id,
+        sender_name=current_user.name,
+        message=msg_data.message
+    )
+    doc = message.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.chat_messages.insert_one(doc)
+    
+    # Notify other party
+    other_user_id = order['provider_id'] if order['buyer_id'] == current_user.id else order['buyer_id']
+    await create_notification(
+        other_user_id,
+        f"New message from {current_user.name}",
+        "chat_message"
+    )
+    
+    return message
+
+@api_router.get("/chat/{order_id}", response_model=List[ChatMessage])
+async def get_messages(order_id: str, current_user: User = Depends(get_current_user)):
+    # Verify user is part of the order
+    order = await db.orders.find_one({"id": order_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order['buyer_id'] != current_user.id and order['provider_id'] != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Only allow chat after payment is completed
+    if order.get('payment_status') != 'completed':
+        raise HTTPException(status_code=400, detail="Chat available only after payment completion")
+    
+    messages = await db.chat_messages.find(
+        {"order_id": order_id},
+        {"_id": 0}
+    ).sort("created_at", 1).to_list(1000)
+    
+    for msg in messages:
+        if isinstance(msg['created_at'], str):
+            msg['created_at'] = datetime.fromisoformat(msg['created_at'])
+    
+    return messages
+
 app.include_router(api_router)
 
 app.add_middleware(
