@@ -3,6 +3,8 @@ import { Toaster } from "sonner";
 import "./App.css";
 import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./components/PrivateRoute";
+import Splash from "./pages/Splash";
+import AuthScreen from "./pages/AuthScreen";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -20,6 +22,7 @@ import EditProfile from "./pages/EditProfile";
 import Ratings from "./pages/Ratings";
 import Notifications from "./pages/Notifications";
 import AdminDashboard from "./pages/AdminDashboard";
+import Chat from "./pages/Chat";
 
 function App() {
   return (
