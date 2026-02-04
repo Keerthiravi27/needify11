@@ -140,6 +140,14 @@ function App() {
                 </PrivateRoute>
               }
             />
+            <Route
+              path="/chat/:orderId"
+              element={
+                <PrivateRoute>
+                  <Chat />
+                </PrivateRoute>
+              }
+            />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           <Toaster position="top-center" richColors />
