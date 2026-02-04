@@ -160,6 +160,18 @@ const Orders = () => {
                     Created: {new Date(order.created_at).toLocaleString()}
                   </p>
                   <div className="flex gap-2">
+                    {order.payment_status === 'completed' && (
+                      <Link to={`/chat/${order.id}`}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="rounded-full border-primary text-primary hover:bg-primary hover:text-white"
+                          data-testid={`chat-btn-${order.id}`}
+                        >
+                          <MessageCircle className="w-4 h-4 mr-2" /> Chat
+                        </Button>
+                      </Link>
+                    )}
                     {order.payment_status === 'pending' && order.buyer_id === user?.id && order.status === 'pending_payment' && (
                       <Button
                         onClick={() => handlePayment(order.id)}
